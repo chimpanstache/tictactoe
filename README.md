@@ -6,5 +6,5 @@ Purpose was to practise ood && oop.
 
 ### USE :
 you need to have ruby installed locally on your machine  
-run the tictactoe.sh script
+run the tictactoe.sh script  
 have fun  

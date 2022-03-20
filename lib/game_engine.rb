@@ -104,7 +104,6 @@ class GameEngine
       end
 
       if @game.winner?
-    
         puts "\n***** congrats #{game_winner.name} !!!! *****\n"
         game_winner.score += 1
         @game.clear_grid

@@ -1,9 +1,16 @@
 class Game
-  attr_reader :grid
+  attr_reader :grid, :winner
 
   def initialize(number)
     @grid = Array.new(3) { Array.new(3) {0} } 
     
+    clear_grid
+
+    @x_or_o = 'O'
+    @winner = ''
+  end             
+
+  def clear_grid
     box = 1
 
     for i in 0..2 do
@@ -12,9 +19,7 @@ class Game
         box += 1
       end
     end
-
-    @x_or_o = 'O'
-  end             
+  end  
 
   def update_x_or_o
     if @x_or_o == 'X'
@@ -24,11 +29,11 @@ class Game
     end
   end  
 
-  def update_grid(user_input)
+  def update_grid(user_input, sign)
     box = user_input.to_i
     for x in 0..2 do
       for y in 0..2 do
-        @grid[x][y] = @x_or_o if @grid[x][y] == box    
+        @grid[x][y] = sign if @grid[x][y] == box    
       end
     end
     update_x_or_o
@@ -54,6 +59,7 @@ class Game
   end
 
   def three_same_values?(arr)
+    @winner = arr.uniq
     arr.uniq.length == 1
   end
   

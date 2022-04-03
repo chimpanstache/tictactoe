@@ -72,5 +72,39 @@ describe Game do
         expect(game.finished?).to be_falsy
       end
     end
+
+    context 'when the game is almost finished' do
+      game = Game.new(1)
+      game.grid = [%w[O X O], %w[X O X], ['O', 'X', 9]]
+      it 'returns false' do
+        expect(game.finished?).to be_falsy
+      end
+    end
+
+    context 'when there is a draw' do
+      game = Game.new(1)
+      game.grid = [%w[O X O], %w[X O X], %w[O X X]]
+      it 'returns true' do
+        expect(game.finished?).to be_truthy
+      end
+    end
+  end
+
+  describe '#already_played?' do
+    context 'when the box is already played' do
+      game = Game.new(1)
+      game.grid = [['O', 2, 3], [4, 5, 6], [7, 8, 9]]
+      it 'returns true' do
+        expect(game.already_played?(1)).to be_truthy
+      end
+    end
+    
+    context 'when the box is not already played' do
+      game = Game.new(1)
+      game.grid = [['O', 2, 3], [4, 5, 6], [7, 8, 9]]
+      it 'returns false' do
+        expect(game.already_played?(2)).to be_falsy
+      end
+    end
   end
 end

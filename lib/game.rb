@@ -1,5 +1,5 @@
 class Game
-  attr_reader :grid, :winner
+  attr_accessor :grid, :winner
 
   def initialize(_number)
     @grid = Array.new(3) { Array.new(3) { 0 } }

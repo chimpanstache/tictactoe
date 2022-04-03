@@ -1,39 +1,37 @@
 class Game
   attr_reader :grid, :winner
 
-  def initialize(number)
-    @grid = Array.new(3) { Array.new(3) {0} } 
-    
+  def initialize(_number)
+    @grid = Array.new(3) { Array.new(3) { 0 } }
     clear_grid
-
     @x_or_o = 'O'
-    @winner = ''
-  end             
+  end
 
   def clear_grid
     box = 1
 
-    for i in 0..2 do
-      for j in 0..2 do
+    (0..2).each do |i|
+      (0..2).each do |j|
         @grid[i][j] = box
         box += 1
       end
     end
-  end  
+  end
 
   def update_x_or_o
-    if @x_or_o == 'X'
+    case @x_or_o
+    when 'X'
       @x_or_o = 'O'
-    elsif @x_or_o == 'O'
+    when 'O'
       @x_or_o = 'X'
     end
-  end  
+  end
 
   def update_grid(user_input, sign)
     box = user_input.to_i
-    for x in 0..2 do
-      for y in 0..2 do
-        @grid[x][y] = sign if @grid[x][y] == box    
+    (0..2).each do |x|
+      (0..2).each do |y|
+        @grid[x][y] = sign if @grid[x][y] == box
       end
     end
     update_x_or_o
@@ -41,8 +39,8 @@ class Game
 
   def already_played?(user_input)
     box = user_input.to_i
-    for x in 0..2 do
-      for y in 0..2 do
+    (0..2).each do |x|
+      (0..2).each do |y|
         return false if @grid[x][y] == box
       end
     end
@@ -50,54 +48,54 @@ class Game
   end
 
   def finished?
-    for x in 0..2 do
-      for y in 0..2 do
-        return false if @grid[x][y].to_i.between?(1, 9)  
+    (0..2).each do |x|
+      (0..2).each do |y|
+        return false if @grid[x][y].to_i.between?(1, 9)
       end
     end
     true
   end
 
   def three_same_values?(arr)
-    @winner = arr.uniq
+    @winner = arr.uniq.first
     arr.uniq.length == 1
   end
-  
+
   def winning_via_row?
-    for x in 0..2 do
+    (0..2).each do |x|
       row = Array.new(3)
-      for y in 0..2 do
+      (0..2).each do |y|
         row[y] = @grid[x][y]
       end
-      return true if three_same_values?(row)  
+      return true if three_same_values?(row)
     end
     false
   end
 
   def winning_via_column?
-    for y in 0..2 do
+    (0..2).each do |y|
       column = Array.new(3)
-      for x in 0..2 do
+      (0..2).each do |x|
         column[x] = @grid[x][y]
       end
-      return true if three_same_values?(column)  
+      return true if three_same_values?(column)
     end
     false
   end
 
   def winning_via_diagonal?
     diag = []
-    for i in 0..2 do
+    (0..2).each do |i|
       diag.push(@grid[i][i])
     end
     return true if three_same_values?(diag)
 
     diag.clear
-
     diag.push(@grid[2][0])
     diag.push(@grid[1][1])
     diag.push(@grid[0][2])
     return true if three_same_values?(diag)
+
     false
   end
 

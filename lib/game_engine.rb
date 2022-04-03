@@ -1,114 +1,142 @@
 require_relative 'parse_input'
+require 'byebug'
 
 class GameEngine
-  def initialize(game, player_1, player_2)
+  def initialize(game, player1, player2)
     @game = game
-    @player_1 = player_1
-    @player_2 = player_2
+    @player1 = player1
+    @player2 = player2
   end
-
 
   def coin_toss
     loop do
-      print "#{@player_1.name}, choose a number between 1 and 2 : "
-      player_1_input = gets.chomp
-      if player_1_input != "1" && player_1_input != "2"
-        puts "input is invalid!"
+      print "#{@player1.name}, choose a number between 1 and 2 : "
+      player1_input = gets.chomp
+      if player1_input != '1' && player1_input != '2'
+        puts 'input is invalid!'
         next
       end
-      if player_1_input.to_i == Random.rand(1..2)
-        puts "#{@player_1.name} plays first!"
+      if player1_input.to_i == Random.rand(1..2)
+        puts "#{@player1.name} plays first!"
         return 1
       else
-        puts "#{@player_2.name} plays first!"
+        puts "#{@player2.name} plays first!"
         return 2
       end
     end
   end
 
   def game_init
-    puts "Welcome to the tic tac toe game!"
-    @player_1.init 
-    @player_2.init
-    toss_result = 1
+    puts 'Welcome to the tic tac toe game!'
+    @player1.init
+    @player2.init
     toss_result = coin_toss
     if toss_result == 1
-      @player_1.now
-      @player_2.after
+      @player1.now
+      @player2.after
     else
-      @player_1.after
-      @player_2.now
-    end 
+      @player1.after
+      @player2.now
+    end
     toss_result
   end
 
+  def output_info_board
+    '        players   | sign  | turn  | score'
+  end
+
+  def format_name(name)
+    name.ljust(10).to_s
+  end
+
+  def format_info(info)
+    info.ljust(6).to_s
+  end
+
+  def output_player_infos(player)
+    '       ' +
+      format_name(player.name) + '| ' +
+      format_info(player.sign) + '| ' +
+      format_info(player.turn) + '| ' +
+      format_info(player.score.to_s)
+  end
+
   def output_game
-    puts " #{@game.grid[0][0]} | #{@game.grid[0][1]} | #{@game.grid[0][2]} " + 
-    "        player | sign | turn | score"
-    puts "---+---+---" + 
-    "        #{@player_1.name.ljust(5).rjust(5)}|#{@player_1.sign.ljust(5).rjust(5)}| #{@player_1.turn.ljust(5).rjust(5)} | #{@player_1.score.to_s.ljust(5).rjust(5)} "
-    puts " #{@game.grid[1][0]} | #{@game.grid[1][1]} | #{@game.grid[1][2]} " +
-    "        #{@player_2.name.ljust(5).rjust(5)} | #{@player_2.sign.ljust(5).rjust(5)} | #{@player_2.turn.ljust(5).rjust(5)} | #{@player_2.score.to_s.ljust(5).rjust(5)} "
-    puts "---+---+---"
-    puts " #{@game.grid[2][0]} | #{@game.grid[2][1]} | #{@game.grid[2][2]} " +
-    "        type 'exit' at anytime to exit game"
-  end  
+    puts ' ' + @game.grid[0][0].to_s + ' | ' + @game.grid[0][1].to_s + ' | ' + @game.grid[0][2].to_s +
+         output_info_board
+    puts '---+---+---' + output_player_infos(@player1)
+    puts ' ' + @game.grid[1][0].to_s + ' | ' + @game.grid[1][1].to_s + ' | ' + @game.grid[1][2].to_s +
+         ' ' + output_player_infos(@player2)
+    puts '---+---+---'
+    puts ' ' + @game.grid[2][0].to_s + ' | ' + @game.grid[2][1].to_s + ' | ' + @game.grid[2][2].to_s + ' ' +
+         "        type 'exit' at anytime to exit game"
+  end
 
   def play(user_input)
-    @turn_to_play == 1 ? @game.update_grid(user_input, @player_1.sign) : @game.update_grid(user_input, @player_2.sign)
-    @turn_to_play == 1 ? @turn_to_play = 2 : @turn_to_play = 1
-    @player_1.update_turn_infos
-    @player_2.update_turn_infos
+    @turn_to_play == 1 ? @game.update_grid(user_input, @player1.sign) : @game.update_grid(user_input, @player2.sign)
+    @turn_to_play = @turn_to_play == 1 ? 2 : 1
+    @player1.update_turn_infos
+    @player2.update_turn_infos
   end
 
   def game_winner
-    if @game.winner == @player_1.sign
-      return @player_1
-    else
-      return @player_2
-    end
+    return @player1 if @game.winner == @player1.sign
+
+    @player2
+  end
+
+  def wrong_action(display_message)
+    puts display_message
+    output_game
+  end
+
+  def winning_calculations
+    puts "\n***** congrats #{game_winner.name} !!!! *****\n"
+    next_player = @player1.turn == 'now' ? @player1 : @player2
+    puts "  ** #{next_player.name} starts the next game, please make first move **\n"
+    game_winner.score += 1
+    @game.clear_grid
+  end
+
+  def draw
+    puts "\n #### it is a draw #### \n\n"
+    @game.clear_grid
   end
 
   def game_loop
     @turn_to_play = game_init
     output_game
     loop do
+      print 'move: '
       user_input = gets.chomp
-      
-      if user_input == "exit"   
-        puts "See you later!"
+
+      if user_input == 'exit'
+        puts 'See you later!'
         break
       end
 
-      parse = ParseInput.new(user_input)
+      clean_input = ParseInput.new(user_input)
 
-      if parse.incorrect_input?
-        puts "\n #### input is invalid, type a number between 1 and 9 #### \n\n"
-        output_game
+      if clean_input.incorrect_input?
+        wrong_action("\n #### input is invalid, type a number between 1 and 9 #### \n\n")
+        next
+      elsif @game.already_played?(user_input)
+        wrong_action("\n #### already played, choose a different box #### \n\n")
         next
       end
-
-      if @game.already_played?(user_input)
-        puts "\n #### already played, choose a different box #### \n\n"
-        output_game
-        next
-      end  
 
       play(user_input)
       output_game
 
       if @game.finished?
-        puts "\n #### it is a draw #### \n\n"
-        @game.clear_grid
+        draw
         next
       end
 
-      if @game.winner?
-        puts "\n***** congrats #{game_winner.name} !!!! *****\n"
-        game_winner.score += 1
-        @game.clear_grid
-        next
-      end
+      next unless @game.winner?
+
+      winning_calculations
+      next
     end
-  end 
+  end
 end
